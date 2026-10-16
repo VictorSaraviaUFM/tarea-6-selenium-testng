@@ -1,53 +1,56 @@
-<div align="center">
+# Tarea 6: Selenium y TestNG con Gradle
 
-<h1>Tarea 6: Selenium y TestNG, de Maven a Gradle</h1>
-
-Pruebas de navegador contra <a href="https://www.saucedemo.com">saucedemo.com</a> con Selenium WebDriver, TestNG y Page Objects.<br>
-El proyecto se construye con Maven, y la tarea es pasarlo a Gradle.
-
-[![Java 21](https://img.shields.io/badge/Java-21-555555?style=flat-square&logo=openjdk)](#requisitos)
-[![Selenium WebDriver](https://img.shields.io/badge/Selenium-WebDriver-43B02A?style=flat-square&logo=selenium&logoColor=white)](#qué-trae)
-[![TestNG](https://img.shields.io/badge/TestNG-suite-555555?style=flat-square)](#qué-trae)
-[![De Maven a Gradle](https://img.shields.io/badge/Maven%20a%20Gradle-02303A?style=flat-square&logo=gradle)](#ejercicio)
-[![Entrega 15 oct 23:59](https://img.shields.io/badge/entrega-15%20oct%2023%3A59-2E5D4B?style=flat-square)](#entrega)
-
-[Requisitos](#requisitos) | [Qué trae](#qué-trae) | [Ejercicio](#ejercicio) | [Entrega](#entrega)
-
-</div>
-
----
+Pruebas de navegador contra [SauceDemo](https://www.saucedemo.com/) con Java 21, Selenium WebDriver, TestNG y Page Objects. Este fork fue migrado de Maven a Gradle.
 
 ## Requisitos
 
-Se necesita Java 21, Maven y Google Chrome. Con eso, el proyecto corre tal como viene:
+- JDK 21 (`java -version` debe indicar 21).
+- Google Chrome.
+- Conexión a Internet para descargar Gradle y las dependencias la primera vez, y para acceder a SauceDemo.
+
+El proyecto incluye **Gradle Wrapper** (`gradlew`), así que no hace falta instalar Gradle por separado.
+
+En macOS con Homebrew, JDK 21 puede activarse en la terminal actual así:
 
 ```bash
-mvn test                     # suite de testng.xml, 6 pruebas
-mvn test-compile exec:java   # suite armada en código, solo smoke
+export JAVA_HOME="$(brew --prefix openjdk@21)/libexec/openjdk.jdk/Contents/Home"
+export PATH="$JAVA_HOME/bin:$PATH"
 ```
 
-## Qué trae
+## Ejecutar
 
-| Archivo | Contenido |
-|---|---|
-| `src/test/java/edu/ufm/qa/pages/` | Los Page Objects de login, inventario, carrito y checkout. |
-| `src/test/java/edu/ufm/qa/tests/` | `LoginTest` y `CartTest`, con sus grupos `smoke` y `regression`. |
-| `testng.xml` | La suite que corre `mvn test`. |
-| `src/test/java/edu/ufm/qa/DynamicSuiteRunner.java` | La misma idea de suite, armada en código. |
-| `pom.xml` | El build de Maven. |
+Desde la raíz del repositorio:
 
-## Ejercicio
+```bash
+./gradlew clean test
+```
 
-Se permite usar LLMs en todos los pasos.
+Las pruebas son *headless* por defecto. Para ver Chrome y grabar la demostración:
 
-1. Hacer fork de este repo y correr las pruebas.
-2. Correrlas con el navegador visible.
-3. Editar `testng.xml` para cambiar qué pruebas corren.
-4. Convertir el proyecto de Maven a Gradle y correr las pruebas con Gradle.
+```bash
+./gradlew clean test -Dheadless=false --console=plain
+```
+
+El resultado detallado se guarda en `build/reports/tests/test/index.html`.
+
+## Elegir las pruebas en `testng.xml`
+
+La suite `testng.xml` incluye actualmente solo el grupo `smoke`: ejecuta dos pruebas, una de login y otra de carrito. Para ejecutar las seis pruebas, agrega `<include name="regression"/>` dentro de `<run>` y vuelve a ejecutar `./gradlew clean test`. También puedes dejar solo `regression`: las dos pruebas `smoke` pertenecen a ambos grupos.
+
+La suite dinámica escrita en Java sigue disponible:
+
+```bash
+./gradlew dynamicSuite                         # smoke
+./gradlew dynamicSuite -Drun.groups=regression # seis pruebas
+```
+
+## Qué hace el proyecto
+
+`LoginTest` comprueba el acceso válido, el usuario bloqueado y la contraseña incorrecta. `CartTest` comprueba agregar y quitar un producto y completar una compra. `BaseTest` abre y cierra Chrome para cada prueba. Las clases en `pages/` encapsulan los elementos y las acciones de cada pantalla. TestNG organiza las pruebas en los grupos `smoke` y `regression`; Gradle compila el código, descarga las dependencias y ejecuta la suite XML.
 
 ## Entrega
 
-La fecha límite es el jueves 15 de octubre de 2026 a las 23:59. Se entregan dos cosas:
+Fecha límite indicada en la tarea: **15 de octubre de 2026, 23:59**.
 
-- El link al fork, con el proyecto ya en Gradle.
-- Un video del flujo corriendo con Gradle y el navegador visible.
+1. Enlace a este fork actualizado en GitHub, con el proyecto en Gradle.
+2. Video donde se vea el comando `./gradlew clean test -Dheadless=false --console=plain`, Chrome realizando el flujo y el resultado `BUILD SUCCESSFUL` en la terminal.

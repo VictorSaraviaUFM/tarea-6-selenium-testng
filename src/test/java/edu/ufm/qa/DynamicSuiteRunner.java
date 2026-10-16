@@ -32,7 +32,7 @@ public class DynamicSuiteRunner {
         test.setXmlClasses(List.of(
                 new XmlClass(LoginTest.class), new XmlClass(CartTest.class)));
 
-        Path out = Path.of("target", "testng-dynamic.xml");
+        Path out = Path.of("build", "testng-dynamic.xml");
         Files.createDirectories(out.getParent());
         Files.writeString(out, suite.toXml());
 

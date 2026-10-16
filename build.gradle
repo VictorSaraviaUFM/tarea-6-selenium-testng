@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+}
+
+group = 'edu.ufm.qa'
+version = '1.0.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.seleniumhq.selenium:selenium-java:4.50.0'
+    testImplementation 'org.testng:testng:7.12.0'
+}
+
+tasks.named('test', Test) {
+    useTestNG {
+        suites 'testng.xml'
+    }
+    systemProperty 'headless', System.getProperty('headless', 'true')
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}
+
+tasks.register('dynamicSuite', JavaExec) {
+    group = 'verification'
+    description = 'Runs the TestNG suite assembled by DynamicSuiteRunner.'
+    dependsOn tasks.named('testClasses')
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'edu.ufm.qa.DynamicSuiteRunner'
+    systemProperty 'run.groups', System.getProperty('run.groups', 'smoke')
+    systemProperty 'headless', System.getProperty('headless', 'true')
+}
